@@ -1,0 +1,14 @@
+{
+  "name": "network-agent",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Cold email outreach agent — Hunter.io + Gmail",
+  "scripts": {
+    "start": "node run.mjs",
+    "dry-run": "node run.mjs --dry-run",
+    "summary": "node run.mjs summary"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.0"
+  }
+}
