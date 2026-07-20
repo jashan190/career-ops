@@ -4,6 +4,8 @@ Trigger: user asks how an ATS would score their resume, "score my resume", "run 
 
 This mode is the mirror image of `oferta.md`. `oferta.md` scores how well a JOB fits the candidate. This mode scores how well the CANDIDATE'S resume would survive automated ATS screening -- useful for finding and fixing gaps in `cv.md` before applying, not for deciding whether to apply.
 
+**Scope note (not to be confused with):** this mode scores the candidate's underlying signal (open source activity, project complexity, production experience) -- it does not check CV *parseability*/structure (single-column layout, standard headings, embeddable fonts -- see #2064) and does not check *JD keyword coverage* (see #1285). Those are both about the generated document; this is about the person behind it. All three can coexist.
+
 ## Attribution
 
 The scoring rubric below is adapted from HackerRank's open-source ATS, [`hiring-agent`](https://github.com/interviewstreet/hiring-agent) (MIT licensed) -- specifically its `resume_evaluation_criteria.jinja` and `resume_evaluation_system_message.jinja` prompts, which HackerRank built to evaluate resumes on the company side. career-ops repurposes the same scoring logic candidate-side: instead of a company scoring the candidate, the candidate scores themselves first, so the gaps a real ATS would penalize get fixed before a real ATS ever sees the resume.
@@ -13,7 +15,7 @@ The scoring rubric below is adapted from HackerRank's open-source ATS, [`hiring-
 1. Read `cv.md` (canonical resume -- never hardcode metrics, read them live)
 2. Read `article-digest.md` if it exists (extra proof points)
 3. Read `config/profile.yml` for `narrative.proof_points` -- these carry project URLs needed for the link-quality scoring below
-4. If a GitHub URL is present (`config/profile.yml` `candidate.github`, or in `cv.md`), check the public GitHub profile (WebSearch/WebFetch, or `gh api users/{username}/repos` if `gh` is available) for contributions to OTHER people's repositories, not just self-owned ones -- this is the single biggest lever in the rubric below
+4. If a GitHub URL is present (`config/profile.yml` `candidate.github`, or in `cv.md`), check the public GitHub profile for contributions to OTHER people's repositories, not just self-owned ones -- this is the single biggest lever in the rubric below. **Deterministic order:** try `gh api users/{username}/repos` first (fast, structured, no fabrication risk); fall back to WebFetch of the profile page only if `gh` is unavailable; use WebSearch only as a last resort if both fail. **If none succeed** (no GitHub URL, or the check fails outright), do not guess -- score Open Source in the 0-4 band (no verifiable presence) and say so explicitly in Evidence, rather than leaving it undefined or inferring from resume text alone.
 
 ## Fairness constraint
 
@@ -28,7 +30,9 @@ Scores must **never** depend on: name, gender, college/university name, GPA, cit
 - **5-10:** only personal/self-owned repos, minimal external contribution
 - **0-4:** no GitHub presence, or only tutorial-style repos
 
-**Hard rule:** personal repositories are NOT open source contribution. If every repo in the candidate's GitHub activity is self-owned, this category is capped at 10 regardless of how polished those repos are.
+**Hard rule:** personal repositories are NOT open-source contributions. If every repo in the candidate's GitHub activity is self-owned, this category is capped at 10 regardless of how polished those repos are.
+
+**Calibration note:** this category was built for early-career/developer hiring, where public OSS activity is a common, strong signal. For senior or leadership-track archetypes (see `_shared.md`'s archetype table) whose strongest evidence is production/organizational impact rather than public commits, weight Production more heavily in the written summary and say so explicitly -- a low Open Source score should read as "not this candidate's strongest lever," not as a flaw.
 
 ### Self Projects (0-30 pts)
 
